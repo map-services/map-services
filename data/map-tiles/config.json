@@ -1,0 +1,28 @@
+{
+  "options": {
+    "paths": {
+      "styles": "/data/styles",
+      "mbtiles": "/data/mbtiles"
+    },
+    "headers": {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type"
+    }
+  },
+  "styles": {
+    "uk_contours": {
+      "style": "uk_contours.json"
+    },
+    "uk_boundary": {
+      "style": "uk_boundary.json"
+    }
+  },
+  "data": {
+    "uk_contours": {
+      "mbtiles": "uk_contours.mbtiles"
+    },
+    "uk_boundary": {
+      "mbtiles": "uk_boundary.mbtiles"
+    }
+  }
+}

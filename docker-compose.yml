@@ -352,3 +352,22 @@ services:
     restart: no
     healthcheck:
       disable: true
+
+  map-tiles:
+    container_name: map_tiles
+    restart: unless-stopped
+    image: maptiler/tileserver-gl:latest
+    command:
+      - "--config=/data/config.json"
+      - "--public_url=https://map-tiles.destructuring-bind.org"
+      - "--log_format=combined"
+    volumes:
+      - ./data/map-tiles:/data
+    labels:
+      - "dockflare.enable=true"
+      - "cloudflare.tunnel.enable=true"
+      - "cloudflare.tunnel.hostname=map-tiles.destructuring-bind.org"
+      - "cloudflare.tunnel.service=http://map-tiles:8080"
+    networks:
+      - default
+      - homelab-net

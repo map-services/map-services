@@ -2,34 +2,13 @@ name: map-services
 
 networks:
   default:
-  homelab-net:
+  hetzner-cloud:
     external: true
 
 volumes:
   config_volume:
 
 services:
-  cron:
-    image: docker:28-cli
-    container_name: cron_scheduler
-    command: >
-      sh -c "
-        cp /workspace/crontab /var/spool/cron/crontabs/root &&
-        chown root /var/spool/cron/crontabs/root &&
-        chmod 600 /var/spool/cron/crontabs/root &&
-        crontab -l &&
-        crond -f -l 2
-      "
-    working_dir: /workspace
-    volumes:
-      - ./.env:/workspace/.env:ro
-      - ./crontab:/workspace/crontab:ro
-      - ./docker-compose.yml:/workspace/docker-compose.yml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - default
-      - homelab-net
-
   du-exporter:
     container_name: du_exporter
     image: ghcr.io/rm-hull/du-exporter:latest
@@ -43,7 +22,7 @@ services:
       disable: false
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   mapproxy-config-generator:
     image: alpine
@@ -72,20 +51,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mapproxy.entrypoints=websecure"
-      - "traefik.http.routers.mapproxy.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/mapproxy/wmts/wmts`)"
+      - "traefik.http.routers.mapproxy.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/mapproxy/wmts/wmts`)"
       - "traefik.http.services.mapproxy.loadbalancer.server.port=80"
-      - "dockflare.enable=true"
-      - "cloudflare.tunnel.enable=true"
-      - "cloudflare.tunnel.hostname=api.destructuring-bind.org"
-      - "cloudflare.tunnel.path=/mapproxy/wmts/wmts"
-      - "cloudflare.tunnel.service=http://mapproxy:80"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   uk-weather-overlays:
     container_name: uk_weather_overlays
-    image: ghcr.io/rm-hull/metoffice-uk-weather-overlays:latest
+    image: ghcr.io/map-services/metoffice-uk-weather-overlays:latest
     command:
       - "api-server"
       - "--root=/data/metoffice-datahub"
@@ -101,31 +75,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uk-weather-overlays.entrypoints=websecure"
-      - "traefik.http.routers.uk-weather-overlays.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/metoffice/datahub`)"
-      - "traefik.http.services.uk-weather-overlays.loadbalancer.server.port=80"
-      - "dockflare.enable=true"
-      - "cloudflare.tunnel.enable=true"
-      - "cloudflare.tunnel.hostname=api.destructuring-bind.org"
-      - "cloudflare.tunnel.path=/v1/metoffice/datahub"
-      - "cloudflare.tunnel.service=http://uk-weather-overlays:8080"
+      - "traefik.http.routers.uk-weather-overlays.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/metoffice/datahub`)"
+      - "traefik.http.services.uk-weather-overlays.loadbalancer.server.port=8080"
     networks:
       - default
-      - homelab-net
-
-  uk-weather-download:
-    container_name: uk_weather_download
-    image: ghcr.io/rm-hull/metoffice-uk-weather-overlays:latest
-    command:
-      - "download"
-      - "--root=/data/metoffice-datahub"
-    volumes:
-      - ./data/metoffice-datahub:/data/metoffice-datahub
-    environment:
-      - METOFFICE_DATAHUB_API_KEY=${METOFFICE_DATAHUB_API_KEY}
-      - METOFFICE_ORDER_ID=${METOFFICE_ORDER_ID}
-    restart: no
-    healthcheck:
-      disable: true
+      - hetzner-cloud
 
   company-data:
     container_name: company_data
@@ -142,15 +96,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.company-data.entrypoints=websecure"
-      - "traefik.http.routers.company-data.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/company-data/`)"
+      - "traefik.http.routers.company-data.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/company-data/`)"
       - "traefik.http.services.company-data.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/company-data"
-      - "dockflare.service=http://company-data:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   company-data-import:
     container_name: company_data_import
@@ -182,7 +132,7 @@ services:
 
   poi-server:
     container_name: poi_server
-    image: ghcr.io/rm-hull/geods-poi-api:latest
+    image: ghcr.io/map-services/geods-poi-api:latest
     command:
       - "poi"
       - "http-server"
@@ -198,19 +148,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.poi-server.entrypoints=websecure"
-      - "traefik.http.routers.poi-server.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/geods-poi/`)"
+      - "traefik.http.routers.poi-server.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/geods-poi/`)"
       - "traefik.http.services.poi-server.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/geods-poi"
-      - "dockflare.service=http://poi-server:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   postcode-polygons:
     container_name: postcode_polygons
-    image: ghcr.io/rm-hull/postcode-polygons:latest
+    image: ghcr.io/map-services/postcode-polygons:latest
     command:
       - api-server
     restart: always
@@ -219,19 +165,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.postcode-polygons.entrypoints=websecure"
-      - "traefik.http.routers.postcode-polygons.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/postcode/`)"
+      - "traefik.http.routers.postcode-polygons.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/postcode/`)"
       - "traefik.http.services.postcode-polygons.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/postcode"
-      - "dockflare.service=http://postcode-polygons:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   street-manager-relay:
     container_name: street_manager_relay
-    image: ghcr.io/rm-hull/street-manager-relay:latest
+    image: ghcr.io/map-services/street-manager-relay:latest
     command:
       - api-server
       - "--db=/data/street-manager.db"
@@ -247,19 +189,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.street-manager-relay.entrypoints=websecure"
-      - "traefik.http.routers.street-manager-relay.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
+      - "traefik.http.routers.street-manager-relay.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
       - "traefik.http.services.street-manager-relay.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/street-manager-relay"
-      - "dockflare.service=http://street-manager-relay:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   place-names:
     container_name: place_names
-    image: ghcr.io/rm-hull/placenames-api:latest
+    image: ghcr.io/map-services/placenames-api:latest
     command:
       - api-server
       - "--file=/data/placenames_with_relevancy.csv.gz"
@@ -271,19 +209,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.place-names.entrypoints=websecure"
-      - "traefik.http.routers.place-names.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/place-names/`)"
+      - "traefik.http.routers.place-names.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/place-names/`)"
       - "traefik.http.services.place-names.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/place-names"
-      - "dockflare.service=http://place-names:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   fuel-prices:
     container_name: fuel_prices
-    image: ghcr.io/rm-hull/fuel-prices-api:latest
+    image: ghcr.io/map-services/fuel-prices-api:latest
     command:
       - "api-server"
       - "--db=/data/fuel_prices.db"
@@ -301,19 +235,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.fuel-prices.entrypoints=websecure"
-      - "traefik.http.routers.fuel-prices.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/fuel-prices/`)"
+      - "traefik.http.routers.fuel-prices.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/fuel-prices/`)"
       - "traefik.http.services.fuel-prices.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/fuel-prices"
-      - "dockflare.service=http://fuel-prices:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   next-departures:
     container_name: next_departures
-    image: ghcr.io/rm-hull/next-departures-api:latest
+    image: ghcr.io/map-services/next-departures-api:latest
     command:
       - "api-server"
       - "--db=/data/next_departures.db"
@@ -331,19 +261,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.next-departures.entrypoints=websecure"
-      - "traefik.http.routers.next-departures.rule=Host(`api.homelab.destructuring-bind.org`) && PathPrefix(`/v1/next-departures/`)"
+      - "traefik.http.routers.next-departures.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/next-departures/`)"
       - "traefik.http.services.next-departures.loadbalancer.server.port=8080"
-      - "dockflare.enable=true"
-      - "dockflare.hostname=api.destructuring-bind.org"
-      - "dockflare.path=/v1/next-departures"
-      - "dockflare.service=http://next-departures:8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud
 
   next-departures-import:
     container_name: next_departures_import
-    image: ghcr.io/rm-hull/next-departures-api:latest
+    image: ghcr.io/map-services/next-departures-api:latest
     command:
       - "import"
       - "--db=/data/next_departures.db"
@@ -359,15 +285,15 @@ services:
     image: maptiler/tileserver-gl:latest
     command:
       - "--config=/data/config.json"
-      - "--public_url=https://map-tiles.destructuring-bind.org"
+      - "--public_url=https://map-tiles.hz-nbg1.destructuring-bind.org"
       - "--log_format=combined"
     volumes:
       - ./data/map-tiles:/data
     labels:
-      - "dockflare.enable=true"
-      - "cloudflare.tunnel.enable=true"
-      - "cloudflare.tunnel.hostname=map-tiles.destructuring-bind.org"
-      - "cloudflare.tunnel.service=http://map-tiles:8080"
+      - "traefik.enable=true"
+      - "traefik.http.routers.map-tiles.entrypoints=websecure"
+      - "traefik.http.routers.map-tiles.rule=Host(`map-tiles.hz-nbg1.destructuring-bind.org`)"
+      - "traefik.http.services.map-tiles.loadbalancer.server.port=8080"
     networks:
       - default
-      - homelab-net
+      - hetzner-cloud

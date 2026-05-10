@@ -50,6 +50,7 @@ services:
       - ./data/mapproxy/cache_data:/mapproxy/cache_data
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.mapproxy.entrypoints=websecure"
       - "traefik.http.routers.mapproxy.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/mapproxy/wmts/wmts`)"
       - "traefik.http.services.mapproxy.loadbalancer.server.port=80"
@@ -74,6 +75,7 @@ services:
       - METOFFICE_ORDER_ID=${METOFFICE_ORDER_ID}
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.uk-weather-overlays.entrypoints=websecure"
       - "traefik.http.routers.uk-weather-overlays.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/metoffice/datahub`)"
       - "traefik.http.services.uk-weather-overlays.loadbalancer.server.port=8080"
@@ -95,6 +97,7 @@ services:
       disable: false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.company-data.entrypoints=websecure"
       - "traefik.http.routers.company-data.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/company-data/`)"
       - "traefik.http.services.company-data.loadbalancer.server.port=8080"
@@ -147,6 +150,7 @@ services:
       disable: false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.poi-server.entrypoints=websecure"
       - "traefik.http.routers.poi-server.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/geods-poi/`)"
       - "traefik.http.services.poi-server.loadbalancer.server.port=8080"
@@ -164,6 +168,7 @@ services:
       disable: false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.postcode-polygons.entrypoints=websecure"
       - "traefik.http.routers.postcode-polygons.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/postcode/`)"
       - "traefik.http.services.postcode-polygons.loadbalancer.server.port=8080"
@@ -188,6 +193,7 @@ services:
       - MODE=production
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.street-manager-relay.entrypoints=websecure"
       - "traefik.http.routers.street-manager-relay.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
       - "traefik.http.services.street-manager-relay.loadbalancer.server.port=8080"
@@ -208,6 +214,7 @@ services:
       disable: false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.place-names.entrypoints=websecure"
       - "traefik.http.routers.place-names.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/place-names/`)"
       - "traefik.http.services.place-names.loadbalancer.server.port=8080"
@@ -234,6 +241,7 @@ services:
       disable: false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.fuel-prices.entrypoints=websecure"
       - "traefik.http.routers.fuel-prices.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/fuel-prices/`)"
       - "traefik.http.services.fuel-prices.loadbalancer.server.port=8080"
@@ -260,6 +268,7 @@ services:
       disable: false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.next-departures.entrypoints=websecure"
       - "traefik.http.routers.next-departures.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/next-departures/`)"
       - "traefik.http.services.next-departures.loadbalancer.server.port=8080"
@@ -291,6 +300,7 @@ services:
       - ./data/map-tiles:/data
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.map-tiles.entrypoints=websecure"
       - "traefik.http.routers.map-tiles.rule=Host(`map-tiles.hz-nbg1.destructuring-bind.org`)"
       - "traefik.http.services.map-tiles.loadbalancer.server.port=8080"

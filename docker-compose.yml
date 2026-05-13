@@ -1,7 +1,6 @@
 name: map-services
 
 networks:
-  default:
   hetzner-cloud:
     external: true
 
@@ -21,7 +20,6 @@ services:
     healthcheck:
       disable: false
     networks:
-      - default
       - hetzner-cloud
 
   mapproxy-config-generator:
@@ -53,9 +51,9 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.mapproxy.entrypoints=websecure"
       - "traefik.http.routers.mapproxy.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/mapproxy/wmts/wmts`)"
+      - "traefik.http.routers.mapproxy.middlewares=crowdsec@file"
       - "traefik.http.services.mapproxy.loadbalancer.server.port=80"
     networks:
-      - default
       - hetzner-cloud
 
   uk-weather-overlays:
@@ -78,9 +76,9 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.uk-weather-overlays.entrypoints=websecure"
       - "traefik.http.routers.uk-weather-overlays.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/metoffice/datahub`)"
+      - "traefik.http.routers.uk-weather-overlays.middlewares=crowdsec@file"
       - "traefik.http.services.uk-weather-overlays.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud
 
   company-data:
@@ -100,9 +98,9 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.company-data.entrypoints=websecure"
       - "traefik.http.routers.company-data.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/company-data/`)"
+      - "traefik.http.routers.company-data.middlewares=crowdsec@file"
       - "traefik.http.services.company-data.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud
 
   company-data-import:
@@ -153,9 +151,9 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.poi-server.entrypoints=websecure"
       - "traefik.http.routers.poi-server.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/geods-poi/`)"
+      - "traefik.http.routers.poi-server.middlewares=crowdsec@file"
       - "traefik.http.services.poi-server.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud
 
   postcode-polygons:
@@ -171,35 +169,35 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.postcode-polygons.entrypoints=websecure"
       - "traefik.http.routers.postcode-polygons.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/postcode/`)"
+      - "traefik.http.routers.postcode-polygons.middlewares=crowdsec@file"
       - "traefik.http.services.postcode-polygons.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud
 
-  street-manager-relay:
-    container_name: street_manager_relay
-    image: ghcr.io/map-services/street-manager-relay:latest
-    command:
-      - api-server
-      - "--db=/data/street-manager.db"
-      - "--port=8080"
-    volumes:
-      - ./data/street-manager-relay:/data
-    restart: always
-    healthcheck:
-      disable: false
-    environment:
-      - SENTRY_DSN=${STREET_MANAGER_RELAY_SENTRY_DSN}
-      - MODE=production
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=hetzner-cloud"
-      - "traefik.http.routers.street-manager-relay.entrypoints=websecure"
-      - "traefik.http.routers.street-manager-relay.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
-      - "traefik.http.services.street-manager-relay.loadbalancer.server.port=8080"
-    networks:
-      - default
-      - hetzner-cloud
+  # street-manager-relay:
+  #   container_name: street_manager_relay
+  #   image: ghcr.io/map-services/street-manager-relay:latest
+  #   command:
+  #     - api-server
+  #     - "--db=/data/street-manager.db"
+  #     - "--port=8080"
+  #   volumes:
+  #     - ./data/street-manager-relay:/data
+  #   restart: always
+  #   healthcheck:
+  #     disable: false
+  #   environment:
+  #     - SENTRY_DSN=${STREET_MANAGER_RELAY_SENTRY_DSN}
+  #     - MODE=production
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=hetzner-cloud"
+  #     - "traefik.http.routers.street-manager-relay.entrypoints=websecure"
+  #     - "traefik.http.routers.street-manager-relay.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
+  #     - "traefik.http.routers.street-manager-relay.middlewares=crowdsec@file"
+  #     - "traefik.http.services.street-manager-relay.loadbalancer.server.port=8080"
+  #   networks:
+  #     - hetzner-cloud
 
   place-names:
     container_name: place_names
@@ -217,37 +215,37 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.place-names.entrypoints=websecure"
       - "traefik.http.routers.place-names.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/place-names/`)"
+      - "traefik.http.routers.place-names.middlewares=crowdsec@file"
       - "traefik.http.services.place-names.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud
 
-  fuel-prices:
-    container_name: fuel_prices
-    image: ghcr.io/map-services/fuel-prices-api:latest
-    command:
-      - "api-server"
-      - "--db=/data/fuel_prices.db"
-      - "--port=8080"
-    volumes:
-      - ./data/fuel-prices:/data/
-    restart: always
-    environment:
-      - CLIENT_ID=${FUEL_PRICES_CLIENT_ID}
-      - CLIENT_SECRET=${FUEL_PRICES_CLIENT_SECRET}
-      - SENTRY_DSN=${FUEL_PRICES_SENTRY_DSN}
-      - ENVIRONMENT=${FUEL_PRICES_ENVIRONMENT}
-    healthcheck:
-      disable: false
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=hetzner-cloud"
-      - "traefik.http.routers.fuel-prices.entrypoints=websecure"
-      - "traefik.http.routers.fuel-prices.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/fuel-prices/`)"
-      - "traefik.http.services.fuel-prices.loadbalancer.server.port=8080"
-    networks:
-      - default
-      - hetzner-cloud
+  # fuel-prices:
+  #   container_name: fuel_prices
+  #   image: ghcr.io/map-services/fuel-prices-api:latest
+  #   command:
+  #     - "api-server"
+  #     - "--db=/data/fuel_prices.db"
+  #     - "--port=8080"
+  #   volumes:
+  #     - ./data/fuel-prices:/data/
+  #   restart: always
+  #   environment:
+  #     - CLIENT_ID=${FUEL_PRICES_CLIENT_ID}
+  #     - CLIENT_SECRET=${FUEL_PRICES_CLIENT_SECRET}
+  #     - SENTRY_DSN=${FUEL_PRICES_SENTRY_DSN}
+  #     - ENVIRONMENT=${FUEL_PRICES_ENVIRONMENT}
+  #   healthcheck:
+  #     disable: false
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=hetzner-cloud"
+  #     - "traefik.http.routers.fuel-prices.entrypoints=websecure"
+  #     - "traefik.http.routers.fuel-prices.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/fuel-prices/`)"
+  #     - "traefik.http.routers.fuel-prices.middlewares=crowdsec@file"
+  #     - "traefik.http.services.fuel-prices.loadbalancer.server.port=8080"
+  #   networks:
+  #     - hetzner-cloud
 
   next-departures:
     container_name: next_departures
@@ -271,9 +269,9 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.next-departures.entrypoints=websecure"
       - "traefik.http.routers.next-departures.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/next-departures/`)"
+      - "traefik.http.routers.next-departures.middlewares=crowdsec@file"
       - "traefik.http.services.next-departures.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud
 
   next-departures-import:
@@ -303,7 +301,7 @@ services:
       - "traefik.docker.network=hetzner-cloud"
       - "traefik.http.routers.map-tiles.entrypoints=websecure"
       - "traefik.http.routers.map-tiles.rule=Host(`map-tiles.hz-nbg1.destructuring-bind.org`)"
+      - "traefik.http.routers.map-tiles.middlewares=crowdsec@file"
       - "traefik.http.services.map-tiles.loadbalancer.server.port=8080"
     networks:
-      - default
       - hetzner-cloud

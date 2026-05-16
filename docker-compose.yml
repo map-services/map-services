@@ -83,7 +83,7 @@ services:
 
   company-data:
     container_name: company_data
-    image: ghcr.io/rm-hull/company-data-api:latest
+    image: ghcr.io/map-services/company-data-api:latest
     command:
       - "api-server"
       - "--db=/data/companies_data.db"
@@ -105,7 +105,7 @@ services:
 
   company-data-import:
     container_name: company_data_import
-    image: ghcr.io/rm-hull/company-data-api:latest
+    image: ghcr.io/map-services/company-data-api:latest
     command:
       - "import-companies-house"
       - "--db=/data/companies_data.db"
@@ -119,7 +119,7 @@ services:
 
   code-point-import:
     container_name: code_point_import
-    image: ghcr.io/rm-hull/company-data-api:latest
+    image: ghcr.io/map-services/company-data-api:latest
     command:
       - "import-code-point"
       - "--db=/data/companies_data.db"
@@ -174,30 +174,30 @@ services:
     networks:
       - hetzner-cloud
 
-  # street-manager-relay:
-  #   container_name: street_manager_relay
-  #   image: ghcr.io/map-services/street-manager-relay:latest
-  #   command:
-  #     - api-server
-  #     - "--db=/data/street-manager.db"
-  #     - "--port=8080"
-  #   volumes:
-  #     - ./data/street-manager-relay:/data
-  #   restart: always
-  #   healthcheck:
-  #     disable: false
-  #   environment:
-  #     - SENTRY_DSN=${STREET_MANAGER_RELAY_SENTRY_DSN}
-  #     - MODE=production
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.docker.network=hetzner-cloud"
-  #     - "traefik.http.routers.street-manager-relay.entrypoints=websecure"
-  #     - "traefik.http.routers.street-manager-relay.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
-  #     - "traefik.http.routers.street-manager-relay.middlewares=crowdsec@file"
-  #     - "traefik.http.services.street-manager-relay.loadbalancer.server.port=8080"
-  #   networks:
-  #     - hetzner-cloud
+  street-manager-relay:
+    container_name: street_manager_relay
+    image: ghcr.io/map-services/street-manager-relay:latest
+    command:
+      - api-server
+      - "--db=/data/street-manager.db"
+      - "--port=8080"
+    volumes:
+      - ./data/street-manager-relay:/data
+    restart: always
+    healthcheck:
+      disable: false
+    environment:
+      - SENTRY_DSN=${STREET_MANAGER_RELAY_SENTRY_DSN}
+      - MODE=production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
+      - "traefik.http.routers.street-manager-relay.entrypoints=websecure"
+      - "traefik.http.routers.street-manager-relay.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/street-manager-relay/`)"
+      - "traefik.http.routers.street-manager-relay.middlewares=crowdsec@file"
+      - "traefik.http.services.street-manager-relay.loadbalancer.server.port=8080"
+    networks:
+      - hetzner-cloud
 
   place-names:
     container_name: place_names

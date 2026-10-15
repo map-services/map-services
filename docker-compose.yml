@@ -305,3 +305,23 @@ services:
       - "traefik.http.services.map-tiles.loadbalancer.server.port=8080"
     networks:
       - hetzner-cloud
+
+  gps-routes-api:
+    container_name: gps-routes-api
+    image: ghcr.io/map-services/gps-routes-api:latest
+    command:
+      - "8080"
+    restart: always
+    healthcheck:
+      disable: false
+    environment:
+      - GPS_ROUTES_API_KEY=${GPS_ROUTES_API_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=hetzner-cloud"
+      - "traefik.http.routers.gps-routes.entrypoints=websecure"
+      - "traefik.http.routers.gps-routes.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/v1/gps-routes/`)"
+      - "traefik.http.routers.gps-routes.middlewares=crowdsec@file"
+      - "traefik.http.services.gps-routes.loadbalancer.server.port=8080"
+    networks:
+      - hetzner-cloud

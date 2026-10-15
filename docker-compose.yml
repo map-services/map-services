@@ -306,8 +306,8 @@ services:
     networks:
       - hetzner-cloud
 
-  gps-routes-api:
-    container_name: gps-routes-api
+  gps-routes:
+    container_name: gps_routes
     image: ghcr.io/map-services/gps-routes-api:latest
     command:
       - "8080"

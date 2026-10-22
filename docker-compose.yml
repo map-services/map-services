@@ -316,6 +316,7 @@ services:
       disable: false
     environment:
       - GPS_ROUTES_API_KEY=${GPS_ROUTES_API_KEY}
+      - OS_NAMES_API_KEY=${GPS_ROUTES_OS_NAMES_API_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=hetzner-cloud"

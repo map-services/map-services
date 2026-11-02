@@ -317,8 +317,9 @@ services:
     healthcheck:
       disable: false
     environment:
-      - GPS_ROUTES_API_KEY=${GPS_ROUTES_API_KEY}
-      - OS_NAMES_API_KEY=${GPS_ROUTES_OS_NAMES_API_KEY}
+      GPS_ROUTES_API_KEY: ${GPS_ROUTES_API_KEY}
+      OS_NAMES_API_KEY: ${GPS_ROUTES_OS_NAMES_API_KEY}
+      TRUSTED_PROXIES: ${GPS_ROUTES_TRUSTED_PROXIES}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=hetzner-cloud"

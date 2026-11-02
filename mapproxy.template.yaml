@@ -49,7 +49,6 @@ sources:
     type: tile
     url: https://api.os.uk/maps/raster/v1/zxy/Leisure_27700/%(z)s/%(x)s/%(y)s.png?key=${OS_DATAHUB_API_KEY}
     grid: grid_27700
-    transparent: true
     # coverage now matches the native CRS of the source
     coverage:
       bbox: [-238375, 0, 900000, 1376256]
@@ -95,3 +94,6 @@ grids:
 globals:
   cache:
     lock_dir: /mapproxy/cache_data/tile_locks
+
+  tiles:
+    expires_hours: 720

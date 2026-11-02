@@ -35,11 +35,13 @@ services:
         apk add --no-cache gettext &&
         envsubst < /tmp/mapproxy.template.yaml > /output/mapproxy.yaml
       "
+    networks:
+      - hetzner-cloud
 
   mapproxy:
     container_name: mapproxy
     restart: unless-stopped
-    image: ghcr.io/mapproxy/mapproxy/mapproxy:6.0.1-alpine-nginx
+    image: ghcr.io/mapproxy/mapproxy/mapproxy:8.0.0-alpine-nginx
     depends_on:
       mapproxy-config-generator:
         condition: service_completed_successfully
@@ -52,7 +54,7 @@ services:
       - "traefik.http.routers.mapproxy.entrypoints=websecure"
       - "traefik.http.routers.mapproxy.rule=Host(`api.hz-nbg1.destructuring-bind.org`) && PathPrefix(`/mapproxy/wmts/wmts`)"
       - "traefik.http.routers.mapproxy.middlewares=crowdsec@file"
-      - "traefik.http.services.mapproxy.loadbalancer.server.port=80"
+      - "traefik.http.services.mapproxy.loadbalancer.server.port=9090"
     networks:
       - hetzner-cloud
 
